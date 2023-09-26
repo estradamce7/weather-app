@@ -1,19 +1,23 @@
 import moment from "moment";
 import { conditionForecastSvg } from "./WeatherComponents";
+import { Fragment } from "react";
 
 export default function WeatherDailyForecast(props) {
-  const weatherData = props.weatherDailyForecast;
+  
+  const objWeather = props.weatherDailyForecast;
+  const weatherData = objWeather.data
   let dailyForecast;
+  
   // use forecast request url (5 day / 3 hr forecast): http://api.openweathermap.org/data/2.5/forecast?q=Winnipeg&appid={OPENWEATHER_API_KEY}
   function renderDailyForecast(limit) {
-    if (props.weatherDailyForecast.status == 200) {
+    if (objWeather.status == 200) {
       // check api status
       dailyForecast = weatherData.forecast.forecastday.map((e, i) => {
         // map forecastday arr right away
         if (e.date > moment().format("YYYY-MM-DD")) {
           // only map dates not today
           return (
-            <>
+            <Fragment key={e.date_epoch}>
               <div className="flex justify-between items-center text-gray-700">
                 <span className="font-semibold text-lg w-1/4">
                   {moment(e.date).format("ddd, DD MMM")}
@@ -63,7 +67,7 @@ export default function WeatherDailyForecast(props) {
                   {e.day.mintemp_c}° / {e.day.maxtemp_c}°
                 </span>
               </div>
-            </>
+            </Fragment>
           );
         }
       });
