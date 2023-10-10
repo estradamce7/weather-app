@@ -7,7 +7,7 @@ import axios from "axios";
 
 export default function WeatherToday(props) {
   const [geolocation, setGeolocation] = useState([]);
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState(props.city);
   const [weatherDataTodayResponse, setWeatherDataTodayResponse] = useState([]);
   const [weatherDataToday, setWeatherDataToday] = useState([]);
   const [weatherForecastResponse, setWeatherForecastResponse] = useState([]);
@@ -37,38 +37,6 @@ export default function WeatherToday(props) {
       </div>
     </div>
   );
-  // let hourlyForecast;
-
-  // useEffect(() => {
-  //   // const fetchData = async () => {
-  //   //   // process.env.OPENWEATHER_API_URL +
-  //   //   //   "/data/2.5/weather=" +
-  //   //   //   "Winnipeg" +
-  //   //   //   "&appid=";
-  //   //   // process.env.OPENWEATHER_API_KEY;
-  //   //   axios
-  //   //     .get(
-  //   //       `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=Winnipeg&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-  //   //     )
-  //   //     .then((res) => res)
-  //   //     .then((result) => {
-  //   //       setWeatherDataTodayResponse(result);
-  //   //       setWeatherDataToday(result.data);
-  //   //       console.log(result);
-  //   //     });
-  //   // };
-
-  //   const getGeolocation = async () => {
-  //     axios.get("http://ip-api.com/json").then((result) => {
-  //       console.log(result);
-  //       setGeolocation(result);
-  //       setCity(result.data.city);
-  //     });
-  //   };
-
-  //   getGeolocation();
-  //   // fetchData();
-  // }, []);
 
   useEffect(() => {
     console.log(city);
@@ -83,73 +51,11 @@ export default function WeatherToday(props) {
     };
 
     if (!city) {
-      loadInitialData();
       return;
     }
 
     getWeatherDataToday(city);
-    getWeatherForecast(city);
   }, [city]);
-
-  // useMemo(() => {
-  //   console.log(city);
-  //   const loadInitialData = async () => {
-  //     axios.get("http://ip-api.com/json").then((result) => {
-  //       console.log(result);
-  //       setGeolocation(result);
-  //       setCity(result.data.city);
-  //       let cityResult = result.data.city;
-
-  //       // axios
-  //       //   .get(
-  //       //     `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=${cityResult}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-  //       //   )
-  //       //   .then((weatherNowResult) => {
-  //       //     console.log(weatherNowResult);
-  //       //     setWeatherDataTodayResponse(weatherNowResult);
-  //       //     setWeatherDataToday(weatherNowResult.data);
-  //       //   });
-  //       getWeatherDataToday(cityResult);
-  //     });
-  //   };
-  //   loadInitialData();
-  //   // // getWeatherDataToday(city);
-  //   // async (city) => {
-  //   //   axios
-  //   //     .get(
-  //   //       `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-  //   //     )
-  //   //     .then((res) => res)
-  //   //     .then((result) => {
-  //   //       // setWeatherDataTodayResponse(result);
-  //   //       // setWeatherDataToday(result.data);
-  //   //       console.log(result);
-  //   //       return result;
-  //   //     });
-  //   // };
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchData = async (city) => {
-  //     // process.env.OPENWEATHER_API_URL +
-  //     //   "/data/2.5/weather=" +
-  //     //   "Winnipeg" +
-  //     //   "&appid=";
-  //     // process.env.OPENWEATHER_API_KEY;
-  //     axios
-  //       .get(
-  //         `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-  //       )
-  //       .then((res) => res)
-  //       .then((result) => {
-  //         setWeatherDataTodayResponse(result);
-  //         setWeatherDataToday(result.data);
-  //         console.log(result);
-  //       });
-  //   };
-
-  //   fetchData(city);
-  // }, [city]);
 
   const getWeatherDataToday = async (city, days = 2) => {
     axios
@@ -163,61 +69,23 @@ export default function WeatherToday(props) {
       });
   };
 
-  const getWeatherForecast = async (city) => {
-    axios
-      .get(
-        `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-      )
-      .then((res) => res)
-      .then((result) => {
-        console.log(result);
-        setWeatherForecastResponse(result);
-        setWeatherForecast(result.data);
-      });
-  };
-
-  // useEffect(() => {
-  //   getWeatherDataToday(city);
-  // }, [city, setWeatherDataTodayResponse, setWeatherDataToday]);
-
-  // useEffect(() => {
-  //   console.log(city);
-  //   const fetchData = async () => {
-  //     // process.env.OPENWEATHER_API_URL +
-  //     //   "/data/2.5/weather=" +
-  //     //   "Winnipeg" +
-  //     //   "&appid=";
-  //     // process.env.OPENWEATHER_API_KEY;
-  //     axios
-  //       .get(
-  //         `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-  //       )
-  //       .then((res) => res)
-  //       .then((result) => {
-  //         setWeatherDataTodayResponse(result);
-  //         setWeatherDataToday(result.data);
-  //         console.log(result);
-  //       });
-  //   };
-
-  //   fetchData();
-  // }, [city]);
-
   function renderWeatherToday() {
     return (
       <>
         <div className="flex justify-between">
           <div className="flex flex-col">
             <span className="text-6xl font-bold text-gray-700">
-              {/* {console.log(weatherData)} */}
               {Object.keys(weatherDataTodayResponse).length &&
               weatherDataTodayResponse.status === 200
-                ? parseInt(weatherDataTodayResponse.data.current.temp_c)
+                ? parseInt(weatherDataToday.current.temp_c)
                 : "N/A"}
               °C
             </span>
             <span className="font-semibold mt-1 text-gray-500">
-              {/* {weatherData.location.name}, {weatherData.location.region} {weatherData.location.country} */}
+              {Object.keys(weatherDataTodayResponse).length &&
+              weatherDataTodayResponse.status === 200
+                ? `${weatherDataToday.location.name}, ${weatherDataToday.location.region} ${weatherDataToday.location.country}`
+                : "Loading Data..."}
             </span>
           </div>
           <svg
@@ -235,44 +103,53 @@ export default function WeatherToday(props) {
     );
   }
 
-  // const objWeather = props.weatherNowForecast;
-  // const weatherData = objWeather.data;
-  // let hourlyForecast;
-
-  // console.log(props);
-  // console.log(objWeather);
-  // console.log(weatherData);
-
   function renderTodaysForecast(limit) {
-    // console.log(moment().format("X"));
     let hourlyForecast;
+    // check api status
     if (weatherDataTodayResponse.status == 200) {
-      // check api status
-      weatherDataToday.forecast.forecastday.forEach((e, i) => {
-        hourlyForecast = e.hour.map((hourly, idx) => {
-          if (hourly.time_epoch < moment().format("X")) return false;
-          console.log(hourly);
+      // map by forecastday(s). by default we get 2 days forecast to display enough data to cover from late night to next day
+      hourlyForecast = weatherDataToday.forecast.forecastday.map((day, i) => {
+        return day.hour.map((hourElement, idx) => {
+          if (hourElement.time_epoch < moment().format("X")) return false;
+
           return (
-            <Fragment key={hourly.time_epoch}>
+            <Fragment key={hourElement.time_epoch}>
               <div
                 className="flex flex-col items-center"
-                key={hourly.time_epoch}
+                key={hourElement.time_epoch}
               >
                 <span className="font-semibold text-lg text-dark-custom">
-                  {hourly.temp_c}°C
+                  {hourElement.temp_c}°C
                 </span>
-                {conditionHourlySvg(hourly.condition.text)}
+                {conditionHourlySvg(hourElement.condition.text)}
                 <span className="font-semibold mt-1 text-sm text-dark-custom">
-                  {moment(hourly.time).format("hh:mm")}
+                  {moment(hourElement.time).format("hh:mm")}
                 </span>
                 <span className="text-xs font-semibold text-gray-400">
-                  {moment(hourly.time).format("A")}
+                  {moment(hourElement.time).format("A")}
                 </span>
               </div>
             </Fragment>
           );
         });
       });
+
+      // this is for hourly forecasts that are separated by multiple indexes/days
+      // this is by default to get weather data today and next day
+      if (hourlyForecast.length > 1) {
+        // combine all indexes/days into one index
+        let combinedForecast = [];
+        hourlyForecast.forEach((fc) => {
+          combinedForecast.push(...fc);
+        });
+        // filter out data where false
+        combinedForecast = combinedForecast.filter((element) => {
+          return element != false;
+        });
+
+        return limit ? combinedForecast.slice(0, limit) : combinedForecast;
+      }
+
       return limit ? hourlyForecast.slice(0, limit) : hourlyForecast;
     }
     return <>None</>;
@@ -287,26 +164,3 @@ export default function WeatherToday(props) {
     </>
   );
 }
-
-// const getWeatherDataToday = async (city) => {
-//   axios
-//     .get(
-//       `${process.env.OPENWEATHER_API_URL}/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`
-//     )
-//     .then((res) => res)
-//     .then((result) => {
-//       // setWeatherDataTodayResponse(result);
-//       // setWeatherDataToday(result.data);
-//       console.log(result);
-//       return result;
-//     });
-// };
-
-// const getGeolocation = async () => {
-//   axios.get("http://ip-api.com/json").then((result) => {
-//     console.log(result);
-//     // setGeolocation(result);
-//     // setCity(result.data.city);
-//     return result.data.city;
-//   });
-// };
