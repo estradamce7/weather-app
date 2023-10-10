@@ -1,134 +1,155 @@
 import moment from "moment";
 import { conditionHourlySvg } from "./WeatherComponents";
+import { Fragment } from "react";
+
+import { useState, useEffect, useMemo, useRef } from "react";
+import axios from "axios";
 
 export default function WeatherToday(props) {
-  // console.log(props);
-  // console.log(Object.keys(props.weatherNowForecast.main));
-  const city = props.weatherNowForecast.name;
-  // const weatherData = props.weatherNowForecast.main; // openapi
-  const weatherData = props.weatherNowForecast;
-  let location = weatherData.location;
-  let hourlyForecast;
-  let dailyForecast;
+  const [geolocation, setGeolocation] = useState([]);
+  const [city, setCity] = useState(props.city);
+  const [weatherDataTodayResponse, setWeatherDataTodayResponse] = useState([]);
+  const [weatherDataToday, setWeatherDataToday] = useState([]);
+  const [weatherForecastResponse, setWeatherForecastResponse] = useState([]);
+  const [weatherForecast, setWeatherForecast] = useState([]);
+  const [lat, setLat] = useState(0);
+  const [long, setLong] = useState(0);
+  const loader = (
+    <div className="text-center">
+      <div role="status">
+        <svg
+          aria-hidden="true"
+          className="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        <span className="sr-only">Loading...</span>
+      </div>
+    </div>
+  );
 
-  // request url https://api.openweathermap.org/data/2.5/weather?q=Winnipeg&appid={OPENWEATHER_API_KEY}
-  /**
-   * Returns today's forecast
-   * @param {*} limit
-   * @returns
-   */
+  useEffect(() => {
+    console.log(city);
+    const loadInitialData = async () => {
+      axios.get("http://ip-api.com/json").then((result) => {
+        // console.log(result);
+        setGeolocation(result);
+        setCity(result.data.city);
+        // let cityResult = result.data.city;
+        // if (city) getWeatherDataToday(cityResult);
+      });
+    };
+
+    if (!city) {
+      return;
+    }
+
+    getWeatherDataToday(city);
+  }, [city]);
+
+  const getWeatherDataToday = async (city, days = 2) => {
+    axios
+      .get(
+        `${process.env.WEATHER_API_URL}/v1/forecast.json?q=${city}&key=${process.env.WEATHER_API_KEY}&days=${days}&aqi=no&alerts=no`
+      )
+      .then((result) => {
+        console.log(result);
+        setWeatherDataTodayResponse(result);
+        setWeatherDataToday(result.data);
+      });
+  };
+
+  function renderWeatherToday() {
+    return (
+      <>
+        <div className="flex justify-between">
+          <div className="flex flex-col">
+            <span className="text-6xl font-bold text-gray-700">
+              {Object.keys(weatherDataTodayResponse).length &&
+              weatherDataTodayResponse.status === 200
+                ? parseInt(weatherDataToday.current.temp_c)
+                : "N/A"}
+              °C
+            </span>
+            <span className="font-semibold mt-1 text-gray-500">
+              {Object.keys(weatherDataTodayResponse).length &&
+              weatherDataTodayResponse.status === 200
+                ? `${weatherDataToday.location.name}, ${weatherDataToday.location.region} ${weatherDataToday.location.country}`
+                : "Loading Data..."}
+            </span>
+          </div>
+          <svg
+            className="h-24 w-24 fill-current text-yellow-400"
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+          >
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
+          </svg>
+        </div>
+      </>
+    );
+  }
+
   function renderTodaysForecast(limit) {
-    if (props.weatherNowForecast.status == 200) {
-      // check api status
-      weatherData.forecast.forecastday.forEach((e, i) => {
-        hourlyForecast = e.hour.map((hourly, idx) => {
-          if (hourly.time_epoch < moment().format("X")) return false;
+    let hourlyForecast;
+    // check api status
+    if (weatherDataTodayResponse.status == 200) {
+      // map by forecastday(s). by default we get 2 days forecast to display enough data to cover from late night to next day
+      hourlyForecast = weatherDataToday.forecast.forecastday.map((day, i) => {
+        return day.hour.map((hourElement, idx) => {
+          if (hourElement.time_epoch < moment().format("X")) return false;
+
           return (
-            <>
-              <div className="flex flex-col items-center">
+            <Fragment key={hourElement.time_epoch}>
+              <div
+                className="flex flex-col items-center"
+                key={hourElement.time_epoch}
+              >
                 <span className="font-semibold text-lg text-dark-custom">
-                  {hourly.temp_c}°C
+                  {hourElement.temp_c}°C
                 </span>
-                {conditionHourlySvg(hourly.condition.text)}
-                {/* <svg
-                  className="h-10 w-10 fill-current text-gray-400 mt-3"
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  width="24"
-                >
-                  <path d="M0 0h24v24H0V0z" fill="none" />
-                  <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
-                </svg> */}
+                {conditionHourlySvg(hourElement.condition.text)}
                 <span className="font-semibold mt-1 text-sm text-dark-custom">
-                  {moment(hourly.time).format("hh:mm")}
+                  {moment(hourElement.time).format("hh:mm")}
                 </span>
                 <span className="text-xs font-semibold text-gray-400">
-                  {moment(hourly.time).format("A")}
+                  {moment(hourElement.time).format("A")}
                 </span>
               </div>
-            </>
+            </Fragment>
           );
         });
       });
-      return limit ? hourlyForecast.slice(0, limit) : hourlyForecast;
-    }
-    return <>None</>;
-  }
 
-  // use forecast request url (5 day / 3 hr forecast): http://api.openweathermap.org/data/2.5/forecast?q=Winnipeg&appid={OPENWEATHER_API_KEY}
-  function renderDailyForecast(limit) {
-    // console.log(moment().format("YYYY-MM-DD"));
-    if (props.weatherNowForecast.status == 200) {
-      // check api status
-      weatherData.forecast.forecastday.forEach((e, i) => {
-        // only map forecast for upcoming days
-        if (e.date >= moment().format("YYYY-MM-DD")) {
-          dailyForecast = e.hour.map((hourly, idx) => {
-            // console.log(hourly.time_epoch);
-            if (hourly.time_epoch < moment().format("X")) return false;
-            return (
-              <>
-                <div className="flex justify-between items-center text-gray-700">
-                  <span className="font-semibold text-lg w-1/4">
-                    Fri, 22 Jan
-                  </span>
-                  <div className="flex items-center justify-end w-1/4 pr-10">
-                    <span className="font-semibold">12%</span>
-                    <svg
-                      className="w-6 h-6 fill-current ml-1"
-                      viewBox="0 0 16 20"
-                      version="1.1"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g transform="matrix(1,0,0,1,-4,-2)">
-                        <path
-                          d="M17.66,8L12.71,3.06C12.32,2.67 11.69,2.67 11.3,3.06L6.34,8C4.78,9.56 4,11.64 4,13.64C4,15.64 4.78,17.75 6.34,19.31C7.9,20.87 9.95,21.66 12,21.66C14.05,21.66 16.1,20.87 17.66,19.31C19.22,17.75 20,15.64 20,13.64C20,11.64 19.22,9.56 17.66,8ZM6,14C6.01,12 6.62,10.73 7.76,9.6L12,5.27L16.24,9.65C17.38,10.77 17.99,12 18,14C18.016,17.296 14.96,19.809 12,19.74C9.069,19.672 5.982,17.655 6,14Z"
-                          //style="fill-rule:nonzero;"
-                        />
-                      </g>
-                    </svg>
-                  </div>
-                  <svg
-                    className="h-8 w-8 fill-current w-1/4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                  >
-                    <path d="M0 0h24v24H0V0z" fill="none" />
-                    <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
-                  </svg>
-                  <span className="font-semibold text-lg w-1/4 text-right">
-                    18° / 32°
-                  </span>
-                </div>
-                {/* <div className="flex flex-col items-center">
-                  <span className="font-semibold text-lg text-dark-custom">
-                    {hourly.temp_c}°C
-                  </span>
-                  <svg
-                    className="h-10 w-10 fill-current text-gray-400 mt-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                  >
-                    <path d="M0 0h24v24H0V0z" fill="none" />
-                    <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
-                  </svg>
-                  <span className="font-semibold mt-1 text-sm text-dark-custom">
-                    {moment(hourly.time).format("hh:mm")}
-                  </span>
-                  <span className="text-xs font-semibold text-gray-400">
-                    {moment(hourly.time).format("A")}
-                  </span>
-                </div> */}
-              </>
-            );
-          });
-        }
-      });
+      // this is for hourly forecasts that are separated by multiple indexes/days
+      // this is by default to get weather data today and next day
+      if (hourlyForecast.length > 1) {
+        // combine all indexes/days into one index
+        let combinedForecast = [];
+        hourlyForecast.forEach((fc) => {
+          combinedForecast.push(...fc);
+        });
+        // filter out data where false
+        combinedForecast = combinedForecast.filter((element) => {
+          return element != false;
+        });
+
+        return limit ? combinedForecast.slice(0, limit) : combinedForecast;
+      }
+
       return limit ? hourlyForecast.slice(0, limit) : hourlyForecast;
     }
     return <>None</>;
@@ -136,137 +157,10 @@ export default function WeatherToday(props) {
 
   return (
     <>
-      <div className="flex justify-between">
-        <div className="flex flex-col">
-          {/* <span className="text-6xl font-bold text-gray-700">{weatherData.status ? parseInt(weatherData.temp * 0.1) : "N/A"}°C</span> */
-          /* openapi */}
-          <span className="text-6xl font-bold text-gray-700">
-            {weatherData.status ? parseInt(weatherData.current.temp_c) : "N/A"}
-            °C
-          </span>
-          <span className="font-semibold mt-1 text-gray-500">
-            {location.name}, {location.region} {location.country}
-          </span>
-        </div>
-        <svg
-          className="h-24 w-24 fill-current text-yellow-400"
-          xmlns="http://www.w3.org/2000/svg"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-        >
-          <path d="M0 0h24v24H0V0z" fill="none" />
-          <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
-        </svg>
-      </div>
+      {Object.keys(weatherDataToday).length ? renderWeatherToday() : loader}
       <div className="flex justify-between mt-12">
         {renderTodaysForecast(5)}
       </div>
-      {/* {renderDailyForecast()} */}
-      {/* {props.weatherNowForecast?.length} */}
-      {/* <div className="flex justify-between mt-12"> */}
-      {/* {props.weatherNowForcast.map((forecast) => {
-          <div className="flex flex-col items-center">
-            <span className="font-semibold text-lg text-dark-custom">
-              {forecast.weather}°C
-            </span>
-          </div>;
-        })} */}
-
-      {/* <div className="flex flex-col items-center">
-          <span className="font-semibold text-lg text-dark-custom">29°C</span>
-          <svg
-            className="h-10 w-10 fill-current text-gray-400 mt-3"
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
-          </svg>
-          <span className="font-semibold mt-1 text-sm text-dark-custom">
-            11:00
-          </span>
-          <span className="text-xs font-semibold text-gray-400">AM</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="font-semibold text-lg text-dark-custom">31°C</span>
-          <svg
-            className="h-10 w-10 fill-current text-gray-400 mt-3"
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495l1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115l1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-1 4h2v2.95h-2zm-7.45-.96l1.41 1.41 1.79-1.8-1.41-1.41z" />
-          </svg>
-          <span className="font-semibold mt-1 text-sm text-dark-custom">
-            1:00
-          </span>
-          <span className="text-xs font-semibold text-gray-400">PM</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="font-semibold text-lg text-dark-custom">32°C</span>
-          <svg
-            className="h-10 w-10 fill-current text-gray-400 mt-3"
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M12.01 6c2.61 0 4.89 1.86 5.4 4.43l.3 1.5 1.52.11c1.56.11 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3h-13c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.95 6 12.01 6m0-2C9.12 4 6.6 5.64 5.35 8.04 2.35 8.36.01 10.91.01 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.64-4.96C18.68 6.59 15.65 4 12.01 4z" />
-          </svg>
-          <span className="font-semibold mt-1 text-sm text-dark-custom">
-            3:00
-          </span>
-          <span className="text-xs font-semibold text-gray-400">PM</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="font-semibold text-lg text-dark-custom">31°C</span>
-          <svg
-            className="h-10 w-10 fill-current text-gray-400 mt-3"
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M12.01 6c2.61 0 4.89 1.86 5.4 4.43l.3 1.5 1.52.11c1.56.11 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3h-13c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.95 6 12.01 6m0-2C9.12 4 6.6 5.64 5.35 8.04 2.35 8.36.01 10.91.01 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.64-4.96C18.68 6.59 15.65 4 12.01 4z" />
-          </svg>
-          <span className="font-semibold mt-1 text-sm text-dark-custom">
-            5:00
-          </span>
-          <span className="text-xs font-semibold text-gray-400">PM</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="font-semibold text-lg text-dark-custom">27°C</span>
-          <svg
-            className="h-10 w-10 fill-current text-gray-400 mt-3"
-            xmlns="http://www.w3.org/2000/svg"
-            enableBackground="new 0 0 24 24"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <g>
-              <rect fill="none" height="24" width="24" />
-            </g>
-            <g>
-              <g>
-                <path d="M19.78,17.51c-2.47,0-6.57-1.33-8.68-5.43C8.77,7.57,10.6,3.6,11.63,2.01C6.27,2.2,1.98,6.59,1.98,12 c0,0.14,0.02,0.28,0.02,0.42C2.61,12.16,3.28,12,3.98,12c0,0,0,0,0,0c0-3.09,1.73-5.77,4.3-7.1C7.78,7.09,7.74,9.94,9.32,13 c1.57,3.04,4.18,4.95,6.8,5.86c-1.23,0.74-2.65,1.15-4.13,1.15c-0.5,0-1-0.05-1.48-0.14c-0.37,0.7-0.94,1.27-1.64,1.64 c0.98,0.32,2.03,0.5,3.11,0.5c3.5,0,6.58-1.8,8.37-4.52C20.18,17.5,19.98,17.51,19.78,17.51z" />
-                <path d="M7,16l-0.18,0C6.4,14.84,5.3,14,4,14c-1.66,0-3,1.34-3,3s1.34,3,3,3c0.62,0,2.49,0,3,0c1.1,0,2-0.9,2-2 C9,16.9,8.1,16,7,16z" />
-              </g>
-            </g>
-          </svg>
-          <span className="font-semibold mt-1 text-sm text-dark-custom">
-            7:00
-          </span>
-          <span className="text-xs font-semibold text-gray-400">PM</span>
-        </div> */}
-      {/* </div> */}
     </>
   );
 }
