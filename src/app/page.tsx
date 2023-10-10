@@ -42,8 +42,11 @@ export default function Home() {
   useEffect(() => {
     console.log(city);
     const loadInitialData = async () => {
-      axios.get("http://ip-api.com/json").then((result) => {
-        setCity(result.data.city);
+      axios.get(`${process.env.IPIFY_URL}`).then((result) => { // get ip address
+        axios.get(`${process.env.IPGEOLOCATION_API_URL}/ipgeo?ip=${result.data}&apiKey=${process.env.IPGEOLOCATION_API_KEY}`).then((result) => { // get geolocation based on the ip
+          console.log(result.data);
+          setCity(result.data.city);
+        });
       });
     };
 
