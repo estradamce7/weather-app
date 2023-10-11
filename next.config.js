@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: "export",
 };
 
 module.exports = {
@@ -13,5 +13,6 @@ module.exports = {
     IPGEOLOCATION_API_KEY: process.env.IPGEOLOCATION_API_KEY,
     IPGEOLOCATION_API_URL: process.env.IPGEOLOCATION_API_URL,
     IPIFY_URL: process.env.IPIFY_URL,
+    IPAPI_DOT_CO_URL: process.env.IPAPI_DOT_CO_URL,
   },
 };
