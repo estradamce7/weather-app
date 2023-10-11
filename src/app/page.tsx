@@ -42,11 +42,9 @@ export default function Home() {
   useEffect(() => {
     console.log(city);
     const loadInitialData = async () => {
-      axios.get(`${process.env.IPIFY_URL}`).then((result) => { // get ip address
-        axios.get(`${process.env.IPGEOLOCATION_API_URL}/ipgeo?ip=${result.data}&apiKey=${process.env.IPGEOLOCATION_API_KEY}`).then((result) => { // get geolocation based on the ip
-          console.log(result.data);
-          setCity(result.data.city);
-        });
+      // get city by geolocation
+      axios.get(`${process.env.IPAPI_DOT_CO_URL}/json`).then((result) => {
+        setCity(result.data.city);
       });
     };
 
@@ -59,7 +57,11 @@ export default function Home() {
   return (
     <CenteredContent>
       <Title>
-        <h1 className="text-lg font-semibold">Weather in {city}</h1>
+        {city.trim().length != 0 ? (
+          <h1 className="text-lg font-semibold">Weather in {city}</h1>
+        ) : (
+          <h1 className="text-lg font-semibold">Loading...</h1>
+        )}
       </Title>
       <WidgetContainer>
         {city.trim().length != 0 ? <WeatherToday city={city} /> : loader}
